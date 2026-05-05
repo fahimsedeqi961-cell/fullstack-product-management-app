@@ -25,7 +25,24 @@ export default function Products({ onEdit }) {
     fetchProducts();
   }, []);
 
-  console.log(products)
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:2000/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (!res.ok) {
+        throw new Error("Fiald to delete product");
+      }
+      console.log(res.status);
+      alert("Deleted Successfully");
+    }
+    catch (err) {
+      console.error(err.message);
+    }
+  }
+
+
 
   return (
     <>
@@ -38,7 +55,7 @@ export default function Products({ onEdit }) {
           {products.map((product) => (
             <div
               key={product._id}
-              className="flex flex-col  gap-6 p-8 rounded-xl border-slate-100 bg-white shadow-md "
+              className="flex flex-col gap-6 p-8 rounded-xl border-slate-100 bg-white shadow-md "
             >
               <div className="space-y-4">
                 <h2 className="text-xl font-bold text-slate-900">{product.name}</h2>
@@ -52,11 +69,19 @@ export default function Products({ onEdit }) {
                   ${product.price}
                 </span>
               </div>
-              <button
-                onClick={() => onEdit(product)}
-                className="px-4 py-2 bg-blue-400 text-white rounded-lg cursor-pointer">
-                Edit
-              </button>
+
+              <div className="flex  items-center gap-4">
+                <button
+                  onClick={() => onEdit(product)}
+                  className="px-4 flex-1 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 cursor-pointer">
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(product._id)}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer">
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

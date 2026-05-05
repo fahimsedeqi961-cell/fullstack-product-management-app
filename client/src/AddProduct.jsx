@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 export default function AddProduct({ mode, product, onClose }) {
 
   const [formData, setFormData] = useState({
-    productName: "",
+    name: "",
     description: "",
     category: "",
     price: ""
@@ -12,7 +12,7 @@ export default function AddProduct({ mode, product, onClose }) {
   useEffect(() => {
     if (mode === "update" && product) {
       setFormData({
-        productName: product.name || "",
+        name: product.name || "",
         description: product.description || "",
         category: product.category || "",
         price: product.price || ""
@@ -20,7 +20,7 @@ export default function AddProduct({ mode, product, onClose }) {
     } else {
       // reset for add mode
       setFormData({
-        productName: "",
+        name: "",
         description: "",
         category: "",
         price: ""
@@ -32,18 +32,19 @@ export default function AddProduct({ mode, product, onClose }) {
   const handleOnChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
+
   const url = mode === "add"
     ? "http://localhost:2000/addproduct"
-    : "http://localhost:2000/update"
+    : `http://localhost:2000/update/${product._id}`
 
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const body = mode === "add" ? formData : { ...formData, id: product._id };
+      const body = mode === "add" ? formData : { ...formData };
 
       const res = await fetch(url, {
-        method: "POST",
+        method: mode === "add" ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json"
         },
@@ -54,13 +55,14 @@ export default function AddProduct({ mode, product, onClose }) {
       if (!res.ok) {
         throw new Error("Fialed to add product");
       }
+
       else {
         const data = await res.json();
         console.log(res.status);
         console.log(data);
-        alert("Prodcut added successfully");
+        if (mode === "add" ? alert("Prodcut added successfully") : alert("Prodcut updated successfully"));
         setFormData({
-          productName: "",
+          name: "",
           description: "",
           category: "",
           price: ""
@@ -71,6 +73,7 @@ export default function AddProduct({ mode, product, onClose }) {
 
     } catch (err) {
       console.error(err);
+      alert("An error occured");
     }
   }
 
@@ -91,8 +94,8 @@ export default function AddProduct({ mode, product, onClose }) {
           <div className="grid grid-cols-2 gap-6">
             <input
               type="text"
-              name="productName"
-              value={formData.productName}
+              name="name"
+              value={formData.name}
               onChange={handleOnChange}
               placeholder="product"
               className="p-2 col-span-2 border border-slate-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
