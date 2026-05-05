@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 export default function Products({ onEdit }) {
 
   const [products, setProducts] = useState([]);
+  const [isLoadding, setIsLoading] = useState(false);
 
   const fetchProducts = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch("http://localhost:2000/products");
       if (!res.ok) {
         throw new Error("Failed to fetch products");
@@ -18,14 +20,13 @@ export default function Products({ onEdit }) {
 
     } catch (err) {
       console.error("Error fetching products", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const handleDelete = async (id) => {
+    setIsLoading(true);
     try {
       const res = await fetch(`http://localhost:2000/delete/${id}`, {
         method: "DELETE",
@@ -34,15 +35,25 @@ export default function Products({ onEdit }) {
       if (!res.ok) {
         throw new Error("Fiald to delete product");
       }
+      setProducts(prev => prev.filter(p => p._id !== id));
       console.log(res.status);
       alert("Deleted Successfully");
     }
     catch (err) {
       console.error(err.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
+  useEffect(() => {
+    setIsLoading(true);
+    fetchProducts();
+  }, [onEdit]);
 
+  if (isLoadding) {
+    return <p className="text-3xl font-bold text-center text-slate-700">Loadding...</p>
+  }
 
   return (
     <>
@@ -77,15 +88,16 @@ export default function Products({ onEdit }) {
                   Edit
                 </button>
                 <button
+
                   onClick={() => handleDelete(product._id)}
                   className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer">
-                  Delete
+                  {isLoadding ? "Processing" : "Delete"}
                 </button>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </div >
     </>
   )
 }

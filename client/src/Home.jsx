@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AddProduct from "./AddProduct";
-import Products from "./products";
+import Products from "./Products";
 import Navbar from "./Navbar";
 
 export default function Home() {
